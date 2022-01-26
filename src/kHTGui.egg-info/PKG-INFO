@@ -1,0 +1,90 @@
+Metadata-Version: 2.1
+Name: kHTGui
+Version: 1.0.0
+Summary: GUI to select kHilltopConnector station and measurement
+Home-page: https://github.com/hawkes-bay-rc/kHTGui
+Author: Karunakar
+Author-email: karunakar.kintada@gmail.com
+License: UNKNOWN
+Project-URL: Bug Tracker, https://github.com/hawkes-bay-rc/kHTGui/issues
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: GNU GPLv3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# kHilltopConnector  
+
+## What is this  
+A python module to fetch environmental data from NZ regional councils and others over internet
+
+### Hilltop
+Hilltop is the software/database that majority of the regional councils in New Zealand use to store the environmental information. This is a robust setup and has a web api.  
+
+### Native Hilltop library
+The native Hilltop library _module_ access the database directly and is quite fast. However, running an online app, demands the system to be in the same network. The system also does have an web API, when made available is quite robust.  
+The LAWA website is the best example of external applications retrieving the datasets. This module uses similar framework and is relatively lean on the requirements.  
+  
+### kHilltopConnector Module
+This is the module that would fetch information and the there is a list of regional council apis,and can be called into your existing code without much effort.  
+Please **note** that this system is **slow**, as a single server has to deliver humungous datasets to multiple requests. Cache is built into the module to cater for the responsiveness, however, it is advised to avoid large data requests passed through this module.  
+  
+### Available functions  
+1. **kHilltopConnector()**  
+  **Returns**	: Object with below listed functions  
+  **Note**		: _Relatively slow over internet_  
+	+ **Arguments**
+	1. **apiUrl**	- _default_ HBRC  
+		Needs url with hts endpoint & there are a set of preloaded keys available  
+	2. onCache	- _default_ True  
+		Helps reducing overload on data server  
+	3. refreshInterval	- _default_ 900  
+		**units are in seconds**  
+	4. enableDebug	- _default_ False  
+		Only for debugging purposes  
+	5. minimalist	- _default_ False  
+		if True would not prefetch any information.  
+	+ **Available variables**
+	1. measurementsList		- available when minimalist is not invoked and is static  
+	2. selectMeasurement	- fn (3)  Measurements available through selected server - list
+	3. selectSite			- fn (4)  Available sites for select measurement - list
+	4. selectSiteLocation	- fn (4)  array of current site lat,long values  
+	**Note**		: _The above 3 current operating variables are available upon calling listed functions_   
+	
+2. **kHilltopConnector.kHilltopConnector().fetchData()**  
+  **Returns**	: Get the time series data  
+	**Note** : _all parameters are required if minimalist is True during initialisation_  
+	Calling the function without arguments is ok if selectSite and selectMeasurement are assigned before hand
+	1. Site				- _default_ None  
+		The site can be selected from list returned by above function (3)
+	2. myEndDate		- _default_ last observation  
+		The format is a string in YYYY-MM-DD  
+	3. myStartDate		- _default_ first observation  
+		Same format as above  
+	4. measurement 		- _default_ None  
+		The selection from previous function (2) is used.
+		However, this function can be forced to fetch data for a different site, provided such measurement exits for the requested site
+	5. daily			- _default_ True  
+		If set False, subdaily data sets are fetched
+	6. scaleFactor		- _default_ 1  
+		This is a division factor on fetched time series
+	
+5. **kHilltopConnector.kHilltopConnector().clobberCache()**  
+	**Note** : Flushes the cache and will be unsuccessfull if file is in use, try manual deletion when required  
+  
+## Usage  
+import kHilltopConnector as kHK  
+kHTop = kHK.kHilltopConnector(apiUrl='https://data.hbrc.govt.nz/Envirodata/EMAR.hts')  
+mList = kHTop.measurementsList  
+kHTop.selectMeasurement = mList[0] #select relevant array position for measurement of interest  
+sList = kHTop.siteList  
+kHTop.selectSite = sList[178] #select proper array position for your site  
+print(kHTop.selectSiteLocation)  
+print(kHTop.selectSiteMeasurementEndTime)  
+print((kHTop.fetchData()).head())  
+  
+#search for unitTests.ipynb for more info  
+
+
