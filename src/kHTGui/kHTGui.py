@@ -7,14 +7,14 @@ class kHTGui:
 				'selectSite' : 'Mohaka River at Raupunga'}
 
 	def __init__(self,kHTop=None):
-		if kHTop == None:
+		if kHTop is None:
 			import kHilltopConnector as kHK
 			self.kHTop = kHK.kHilltopConnector(apiUrl='https://data.hbrc.govt.nz/Envirodata/EMAR.hts',refreshInterval=24*3600)
 		else:
 			self.kHTop = kHTop
-        
-        
-        
+
+
+
 		self.measOptions = self.kHTop.measurementsList.copy()
 		self.measOptions.sort()
 
